@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Vivat Gestão</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; }
+        
+        .app-container { display: flex; min-height: 100vh; }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: #1e293b;
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .sidebar-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .sidebar-header i { font-size: 24px; color: #3b82f6; }
+        .sidebar-header span { font-size: 22px; font-weight: 700; }
+        
+        .sidebar-nav { padding: 15px 0; }
+        .sidebar-nav ul { list-style: none; }
+        .sidebar-nav li a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: #94a3b8;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .sidebar-nav li a:hover,
+        .sidebar-nav li.active a {
+            background: #334155;
+            color: white;
+        }
+        .sidebar-nav li.active a { border-left: 3px solid #3b82f6; }
+        .sidebar-nav li a i { width: 20px; text-align: center; }
+        
+        .nav-section {
+            padding: 15px 20px 8px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #64748b;
+        }
+        
+        .sidebar-footer {
+            padding: 15px 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .user-info { display: flex; align-items: center; gap: 10px; }
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            background: #3b82f6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .user-name { font-size: 13px; font-weight: 500; }
+        .user-role { font-size: 11px; color: #94a3b8; }
+        .btn-logout {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+        }
+        .btn-logout:hover { background: #ef4444; color: white; }
+        
+        /* Main */
+        .main-content { flex: 1; margin-left: 260px; }
+        
+        .main-header {
+            height: 65px;
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 25px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        .main-header h1 { font-size: 20px; font-weight: 600; }
+        
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .header-right select {
+            padding: 8px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .content-wrapper { padding: 25px; }
+        
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .kpi-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .kpi-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+        }
+        .bg-primary { background: #2563eb; }
+        .bg-success { background: #10b981; }
+        .bg-danger { background: #ef4444; }
+        .bg-info { background: #06b6d4; }
+        
+        .kpi-label { font-size: 13px; color: #64748b; }
+        .kpi-value { font-size: 22px; font-weight: 700; color: #1e293b; display: block; margin: 4px 0; }
+        .kpi-change { font-size: 12px; display: flex; align-items: center; gap: 4px; }
+        .kpi-change.positive { color: #10b981; }
+        .kpi-change.negative { color: #ef4444; }
+        
+        /* Charts */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .card-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .card-header h3 { font-size: 16px; font-weight: 600; }
+        .card-body { padding: 20px; }
+        .chart-container { height: 300px; }
+        
+        /* Tables */
+        .tables-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 20px;
+        }
+        .table { width: 100%; border-collapse: collapse; }
+        .table th, .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .table th {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+        .table tbody tr:hover { background: #f8fafc; }
+        
+        .user-cell { display: flex; align-items: center; gap: 10px; }
+        .avatar {
+            width: 32px;
+            height: 32px;
+            background: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .badge-success { background: #dcfce7; color: #166534; }
+        .badge-danger { background: #fee2e2; color: #991b1b; }
+        
+        /* Pending List */
+        .pending-list { display: flex; flex-direction: column; gap: 12px; }
+        .pending-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            background: #f8fafc;
+        }
+        .pending-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .pending-item.warning .pending-icon { background: #fef3c7; color: #d97706; }
+        .pending-item.info .pending-icon { background: #dbeafe; color: #2563eb; }
+        .pending-item.danger .pending-icon { background: #fee2e2; color: #dc2626; }
+        .pending-item.success .pending-icon { background: #dcfce7; color: #16a34a; }
+        
+        .pending-content { flex: 1; }
+        .pending-content strong { font-size: 13px; display: block; }
+        .pending-content span { font-size: 12px; color: #64748b; }
+        
+        .btn {
+            padding: 6px 12px;
+            font-size: 13px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-primary { background: #2563eb; color: white; }
+        .btn-success { background: #10b981; color: white; }
+        .btn-outline { background: white; border: 1px solid #e2e8f0; color: #1e293b; }
+        
+        @media (max-width: 1200px) {
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            .charts-grid, .tables-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .main-content { margin-left: 0; }
+            .kpi-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-heartbeat"></i>
+                <span>Vivat</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active">
+                        <a href="dashboard.html">
+                            <i class="fas fa-home"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-section">Cadastros</li>
+                    <li>
+                        <a href="#">
+                            <i class="fas fa-user-md"></i>
+                            <span>Profissionais</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="fas fa-hospital"></i>
+                            <span>Convênios</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="fas fa-door-open"></i>
+                            <span>Salas e Turnos</span>
+                        </a>
+                    </li>
+                    <li class="nav-section">Operacional</li>
+                    <li>
+                        <a href="#">
+                            <i class="fas fa-clipboard-list"></i>
+                            <span>Atendimentos</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="fas fa-file-import"></i>
+                            <span>Importar Relatórios</span>
+                        </a>
+                    </li>
+                    <li class="nav-section">Financeiro</li>
+                    <li>
+                        <a href="#">
+                            <i class="fas fa-calculator"></i>
+                            <span>Fechamento Mensal</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="extrato.html">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                            <span>Extratos</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="fas fa-chart-pie"></i>
+                            <span>DRE</span>
+                        </a>
+                    </li>
+                    <li class="nav-section">Sistema</li>
+                    <li>
+                        <a href="#">
+                            <i class="fas fa-cog"></i>
+                            <span>Configurações</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <div class="user-name">Administrador</div>
+                        <div class="user-role">Admin</div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="location.href='index.html'">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </aside>
+        
+        <!-- Main -->
+        <main class="main-content">
+            <header class="main-header">
+                <h1>Dashboard</h1>
+                <div class="header-right">
+                    <select>
+                        <option>Fevereiro/2026</option>
+                        <option>Janeiro/2026</option>
+                        <option>Dezembro/2025</option>
+                    </select>
+                </div>
+            </header>
+            
+            <div class="content-wrapper">
+                <!-- KPIs -->
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-icon bg-primary">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div>
+                            <span class="kpi-label">Receita Total</span>
+                            <span class="kpi-value">R$ 58.100,87</span>
+                            <span class="kpi-change positive">
+                                <i class="fas fa-arrow-up"></i> 12% vs mês anterior
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="kpi-card">
+                        <div class="kpi-icon bg-danger">
+                            <i class="fas fa-file-invoice"></i>
+                        </div>
+                        <div>
+                            <span class="kpi-label">Despesas</span>
+                            <span class="kpi-value">R$ 43.539,93</span>
+                            <span class="kpi-change negative">
+                                <i class="fas fa-arrow-up"></i> 8% vs mês anterior
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="kpi-card">
+                        <div class="kpi-icon bg-success">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div>
+                            <span class="kpi-label">Resultado</span>
+                            <span class="kpi-value">R$ 14.560,94</span>
+                            <span class="kpi-change positive">
+                                <i class="fas fa-arrow-up"></i> 45% vs mês anterior
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="kpi-card">
+                        <div class="kpi-icon bg-info">
+                            <i class="fas fa-user-md"></i>
+                        </div>
+                        <div>
+                            <span class="kpi-label">Atendimentos</span>
+                            <span class="kpi-value">347</span>
+                            <span class="kpi-change positive">
+                                <i class="fas fa-arrow-up"></i> 5% vs mês anterior
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Charts -->
+                <div class="charts-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Evolução Mensal</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="revenueChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Despesas por Categoria</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="expensesChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tables -->
+                <div class="tables-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Top Profissionais - Receita</h3>
+                        </div>
+                        <div class="card-body">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Profissional</th>
+                                        <th>Especialidade</th>
+                                        <th>Valor</th>
+                                        <th>Var.</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="user-cell">
+                                                <div class="avatar">RM</div>
+                                                <span>Dr. Rafael Mello</span>
+                                            </div>
+                                        </td>
+                                        <td>Gastro</td>
+                                        <td><strong>R$ 21.104,29</strong></td>
+                                        <td><span class="badge badge-success">+11%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="user-cell">
+                                                <div class="avatar">MM</div>
+                                                <span>Dr. Maurílio Mota</span>
+                                            </div>
+                                        </td>
+                                        <td>Gastro</td>
+                                        <td><strong>R$ 8.799,77</strong></td>
+                                        <td><span class="badge badge-success">+8%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="user-cell">
+                                                <div class="avatar">NN</div>
+                                                <span>Dr. Nilton De Nadai</span>
+                                            </div>
+                                        </td>
+                                        <td>Gastro</td>
+                                        <td><strong>R$ 5.331,58</strong></td>
+                                        <td><span class="badge badge-success">+60%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="user-cell">
+                                                <div class="avatar">RN</div>
+                                                <span>Dr. Renan Nodari</span>
+                                            </div>
+                                        </td>
+                                        <td>Dermato</td>
+                                        <td><strong>R$ 4.482,20</strong></td>
+                                        <td><span class="badge badge-danger">-1%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="user-cell">
+                                                <div class="avatar">IL</div>
+                                                <span>Dra. Isadora Lippmann</span>
+                                            </div>
+                                        </td>
+                                        <td>Dermato</td>
+                                        <td><strong>R$ 3.332,36</strong></td>
+                                        <td><span class="badge badge-danger">-30%</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Pendências</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="pending-list">
+                                <div class="pending-item warning">
+                                    <div class="pending-icon">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                    <div class="pending-content">
+                                        <strong>Fechamento Jan/2026</strong>
+                                        <span>Aguardando aprovação</span>
+                                    </div>
+                                    <button class="btn btn-primary">Revisar</button>
+                                </div>
+                                
+                                <div class="pending-item info">
+                                    <div class="pending-icon">
+                                        <i class="fas fa-file-import"></i>
+                                    </div>
+                                    <div class="pending-content">
+                                        <strong>Relatório Itaipu</strong>
+                                        <span>12 atendimentos para conferir</span>
+                                    </div>
+                                    <button class="btn btn-outline">Ver</button>
+                                </div>
+                                
+                                <div class="pending-item danger">
+                                    <div class="pending-icon">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                    </div>
+                                    <div class="pending-content">
+                                        <strong>Contrato Dr. Felipe</strong>
+                                        <span>Vence em 15 dias</span>
+                                    </div>
+                                    <button class="btn btn-outline">Renovar</button>
+                                </div>
+                                
+                                <div class="pending-item success">
+                                    <div class="pending-icon">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <div class="pending-content">
+                                        <strong>Extratos Fev/2026</strong>
+                                        <span>Prontos para envio</span>
+                                    </div>
+                                    <button class="btn btn-success">Enviar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        // Gráfico de Evolução
+        new Chart(document.getElementById('revenueChart'), {
+            type: 'line',
+            data: {
+                labels: ['Set/25', 'Out/25', 'Nov/25', 'Dez/25', 'Jan/26', 'Fev/26'],
+                datasets: [
+                    {
+                        label: 'Receitas',
+                        data: [70367, 79688, 67611, 58100, 56171, 58100],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Despesas',
+                        data: [48629, 52554, 46698, 47883, 40501, 43539],
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'top' } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'R$ ' + (value / 1000).toFixed(0) + 'k';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Gráfico de Despesas
+        new Chart(document.getElementById('expensesChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Pessoal', 'Operacional', 'Tributos', 'Outros'],
+                datasets: [{
+                    data: [25921, 14539, 14347, 3732],
+                    backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#6366f1'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'right' } }
+            }
+        });
+    </script>
+</body>
+</html>
