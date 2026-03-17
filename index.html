@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vivat Gestão - Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        }
+        .login-container {
+            display: flex;
+            width: 900px;
+            max-width: 95%;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        .login-box {
+            flex: 1;
+            padding: 40px;
+        }
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .logo i {
+            font-size: 36px;
+            color: #2563eb;
+        }
+        .logo span {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .login-header h1 {
+            font-size: 20px;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+        .login-header p {
+            color: #64748b;
+            font-size: 14px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1e293b;
+            margin-bottom: 6px;
+        }
+        .input-icon {
+            position: relative;
+        }
+        .input-icon i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+        .input-icon input {
+            width: 100%;
+            padding: 12px 14px 12px 42px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .input-icon input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        .btn {
+            width: 100%;
+            padding: 12px 20px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+        .btn:hover {
+            background: #1d4ed8;
+        }
+        .login-footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+        .login-footer p {
+            color: #64748b;
+            font-size: 14px;
+        }
+        .login-footer small {
+            color: #94a3b8;
+            font-size: 12px;
+        }
+        .login-info {
+            flex: 1;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            padding: 40px;
+            display: flex;
+            align-items: center;
+            color: white;
+        }
+        .info-content h2 {
+            font-size: 24px;
+            margin-bottom: 25px;
+        }
+        .info-content ul {
+            list-style: none;
+        }
+        .info-content li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            font-size: 15px;
+        }
+        .info-content li i {
+            color: #10b981;
+        }
+        @media (max-width: 768px) {
+            .login-info { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <div class="logo">
+                    <i class="fas fa-heartbeat"></i>
+                    <span>Vivat</span>
+                </div>
+                <h1>Sistema de Gestão</h1>
+                <p>Clínica Médica Melo & Lippmann</p>
+            </div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>E-mail</label>
+                    <div class="input-icon">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="email" placeholder="seu@email.com" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Senha</label>
+                    <div class="input-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" placeholder="••••••••" required>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Entrar
+                </button>
+            </form>
+            
+            <div class="login-footer">
+                <p>Demo de apresentação</p>
+                <small>Use: admin@vivat.com / 123456</small>
+            </div>
+        </div>
+        
+        <div class="login-info">
+            <div class="info-content">
+                <h2>Gerencie sua clínica com eficiência</h2>
+                <ul>
+                    <li><i class="fas fa-check-circle"></i> Controle de atendimentos</li>
+                    <li><i class="fas fa-check-circle"></i> Repasse automático para médicos</li>
+                    <li><i class="fas fa-check-circle"></i> Rateio de despesas</li>
+                    <li><i class="fas fa-check-circle"></i> DRE e relatórios financeiros</li>
+                    <li><i class="fas fa-check-circle"></i> Importação de relatórios</li>
+                    <li><i class="fas fa-check-circle"></i> Extrato profissional em PDF</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (email === 'admin@vivat.com' && password === '123456') {
+                window.location.href = 'dashboard.html';
+            } else {
+                alert('Credenciais inválidas!\\n\\nUse: admin@vivat.com / 123456');
+            }
+        });
+    </script>
+</body>
+</html>
